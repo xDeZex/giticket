@@ -27,6 +27,7 @@ def update_commit_message(filename, regex, mode, format_string):
         tickets_length = sum([len(ticket) for ticket in tickets]) + len(tickets) * 2
         # Bail if commit message already contains tickets
         if all(ticket in commit_msg[:tickets_length] for ticket in tickets):
+            print(f"Commit message already contains tickets in the first {tickets_length} characters.")
             return 1
 
         if tickets:
@@ -44,6 +45,7 @@ def update_commit_message(filename, regex, mode, format_string):
             fd.writelines(contents)
             fd.truncate()
             return 0
+        print("Found no tickets in the branch name.")
         return 1
 
 
