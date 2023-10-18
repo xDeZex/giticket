@@ -21,11 +21,12 @@ def update_commit_message(filename, regex, mode, format_string):
         # Check if we can grab ticket info from branch name.
         branch = get_branch_name()
 
-        # Bail if commit message already contains tickets
-        if any(re.search(regex, content) for content in contents):
-            return
 
         tickets = re.findall(regex, branch)
+        # Bail if commit message already contains tickets
+        if any(ticket in commit_msg for ticket in tickets):
+            return
+
         if tickets:
             if mode == underscore_split_mode:
                 tickets = [branch.split(six.text_type('_'))[0]]
