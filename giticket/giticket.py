@@ -23,9 +23,11 @@ def update_commit_message(filename, regex, mode, format_string):
 
 
         tickets = re.findall(regex, branch)
+        tickets = [ticket for ticket in tickets if ticket != ""]
+        tickets_length = sum([len(ticket) for ticket in tickets]) + len(tickets) * 2
         # Bail if commit message already contains tickets
-        if any(ticket in commit_msg for ticket in tickets):
-            return
+        if all(ticket in commit_msg[:tickets_length] for ticket in tickets):
+            return 1
 
         if tickets:
             if mode == underscore_split_mode:
@@ -41,6 +43,8 @@ def update_commit_message(filename, regex, mode, format_string):
             fd.seek(0)
             fd.writelines(contents)
             fd.truncate()
+            return 0
+        return 1
 
 
 def get_branch_name():
@@ -72,7 +76,7 @@ def main(argv=None):
     args = parser.parse_args(argv)
     regex = args.regex or r'[A-Z]+-\d+'  # noqa
     format_string = args.format or '{ticket} {commit_msg}' # noqa
-    update_commit_message(args.filenames[0], regex, args.mode, format_string)
+    return update_commit_message(args.filenames[0], regex, args.mode, format_string)
 
 
 if __name__ == '__main__':
