@@ -35,7 +35,7 @@ def update_commit_message(filename, regex, mode, format_string):
                 tickets = [branch.split(six.text_type('_'))[0]]
             tickets = [t.strip() for t in tickets]
             
-            tickets = [re.sub("^[0-9]*-", "", ticket) for ticket in tickets]
+            tickets = [re.sub("^[0-9]*-", "reopens \\1# ", ticket) for ticket in tickets]
 
             new_commit_msg = format_string.format(
                 ticket=tickets[0], tickets=', '.join(tickets),
