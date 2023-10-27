@@ -34,13 +34,11 @@ def update_commit_message(filename, regex, mode, format_string, ticketsRegex):
             if mode == underscore_split_mode:
                 tickets = [branch.split(six.text_type('_'))[0]]
             tickets = [t.strip() for t in tickets]
-            
+                
             if ticketsRegex:
                 if re.match(ticketsRegex, tickets[0]):
                     tickets = [re.sub(ticketsRegex, "#\\1 : ", ticket) for ticket in tickets]
                     
-            if len(tickets[0]) > 10:
-                tickets[0] = tickets[0][:10]
 
             new_commit_msg = format_string.format(
                 ticket=tickets[0], tickets=', '.join(tickets),
