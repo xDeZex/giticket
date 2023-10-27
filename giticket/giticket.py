@@ -14,7 +14,7 @@ underscore_split_mode = 'underscore_split'
 regex_match_mode = 'regex_match'
 
 
-def update_commit_message(filename, regex, mode, format_string):
+def update_commit_message(filename, regex, mode, format_string, ticketsRegex):
     with io.open(filename, 'r+') as fd:
         contents = fd.readlines()
         commit_msg = contents[0].rstrip('\r\n')
@@ -35,8 +35,12 @@ def update_commit_message(filename, regex, mode, format_string):
                 tickets = [branch.split(six.text_type('_'))[0]]
             tickets = [t.strip() for t in tickets]
             
-            if re.match("^([0-9]*)-", tickets[0]):
-                tickets = [re.sub("^([0-9]*)-", "reopens #\\1 ", ticket) for ticket in tickets]
+            if ticketsRegex:
+                if re.match(ticketsRegex, tickets[0]):
+                    tickets = [re.sub(ticketsRegex, "#\\1 : ", ticket) for ticket in tickets]
+                    
+            if len(tickets[0]) > 10:
+                tickets[0] = tickets[0][:10]
 
             new_commit_msg = format_string.format(
                 ticket=tickets[0], tickets=', '.join(tickets),
@@ -78,10 +82,11 @@ def main(argv=None):
     parser.add_argument('--mode', nargs='?', const=underscore_split_mode,
                         default=underscore_split_mode,
                         choices=[underscore_split_mode, regex_match_mode])
+    parser.add_argument('--tickets', nargs="?", default=None)
     args = parser.parse_args(argv)
     regex = args.regex or r'[A-Z]+-\d+'  # noqa
     format_string = args.format or '{ticket} {commit_msg}' # noqa
-    return update_commit_message(args.filenames[0], regex, args.mode, format_string)
+    return update_commit_message(args.filenames[0], regex, args.mode, format_string, args.tickets)
 
 
 if __name__ == '__main__':
