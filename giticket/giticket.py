@@ -42,6 +42,7 @@ def update_commit_message(filename, regex, mode, format_string, ticket_number_re
                     print("Could not find ticket number in branch name.")
                     return 1
                 ticket_number = ticket_number[0]
+                tickets[0] = re.sub(ticket_number_regex, '', tickets[0])
                     
  
             new_commit_msg = format_string.format(
