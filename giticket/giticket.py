@@ -37,10 +37,11 @@ def update_commit_message(filename, regex, mode, format_string, ticket_number_re
             tickets = [t.strip() for t in tickets]
                 
             if ticket_number_regex:
-                ticket_number = re.findall(ticket_number_regex, tickets[0])[0]
+                ticket_number = re.findall(ticket_number_regex, tickets[0])
                 if not ticket_number:
                     print("Could not find ticket number in branch name.")
                     return 1
+                ticket_number = ticket_number[0]
                     
  
             new_commit_msg = format_string.format(
