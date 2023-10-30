@@ -14,7 +14,7 @@ underscore_split_mode = 'underscore_split'
 regex_match_mode = 'regex_match'
 
 
-def update_commit_message(filename, regex, mode, format_string, ticketsRegex):
+def update_commit_message(filename, regex, mode, format_string, ticket_number_regex):
     with io.open(filename, 'r+') as fd:
         contents = fd.readlines()
         commit_msg = contents[0].rstrip('\r\n')
@@ -24,6 +24,7 @@ def update_commit_message(filename, regex, mode, format_string, ticketsRegex):
 
         tickets = re.findall(regex, branch)
         tickets = [ticket for ticket in tickets if ticket != ""]
+        ticket_number = ""
         tickets_length = sum([len(ticket) for ticket in tickets]) + len(tickets) * 2
         # Bail if commit message already contains tickets
         if all(ticket in commit_msg[:tickets_length] for ticket in tickets):
@@ -35,14 +36,18 @@ def update_commit_message(filename, regex, mode, format_string, ticketsRegex):
                 tickets = [branch.split(six.text_type('_'))[0]]
             tickets = [t.strip() for t in tickets]
                 
-            if ticketsRegex:
-                if re.match(ticketsRegex, tickets[0]):
-                    tickets = [re.sub(ticketsRegex, "#\\1 : ", ticket) for ticket in tickets]
+            if ticket_number_regex:
+                ticket_number = re.findall(ticket_number_regex, tickets[0])[0]
+                if not ticket_number:
+                    print("Could not find ticket number in branch name.")
+                    return 1
                     
-
+ 
             new_commit_msg = format_string.format(
-                ticket=tickets[0], tickets=', '.join(tickets),
-                commit_msg=commit_msg
+                ticket=tickets[0], 
+                tickets=', '.join(tickets),
+                commit_msg=commit_msg,
+                ticket_number= ticket_number
             )
 
             contents[0] = six.text_type(new_commit_msg + "\n")
@@ -80,7 +85,7 @@ def main(argv=None):
     parser.add_argument('--mode', nargs='?', const=underscore_split_mode,
                         default=underscore_split_mode,
                         choices=[underscore_split_mode, regex_match_mode])
-    parser.add_argument('--tickets', nargs="?", default=None)
+    parser.add_argument('--ticket_number', nargs="?", default=None)
     args = parser.parse_args(argv)
     regex = args.regex or r'[A-Z]+-\d+'  # noqa
     format_string = args.format or '{ticket} {commit_msg}' # noqa
