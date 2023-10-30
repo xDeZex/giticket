@@ -89,7 +89,7 @@ def main(argv=None):
     args = parser.parse_args(argv)
     regex = args.regex or r'[A-Z]+-\d+'  # noqa
     format_string = args.format or '{ticket} {commit_msg}' # noqa
-    return update_commit_message(args.filenames[0], regex, args.mode, format_string, args.tickets)
+    return update_commit_message(args.filenames[0], regex, args.mode, format_string, args.ticket_number)
 
 
 if __name__ == '__main__':
